@@ -2,6 +2,8 @@ package com.algaworks.algalog.controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.algaworks.algalog.model.Cliente;
 import com.algaworks.algalog.repository.ClienteRepository;
+import com.algaworks.algalog.service.ClienteService;
 
 @RestController
 @RequestMapping("/clientes")
@@ -24,6 +27,9 @@ public class ClienteController {
 
 	@Autowired
 	private ClienteRepository clienteRepository;
+	
+	@Autowired
+	private ClienteService clienteService;
 	
 	@GetMapping
 	public List<Cliente> listar() {
@@ -44,17 +50,17 @@ public class ClienteController {
 	
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public Cliente adicionar(@RequestBody Cliente cliente) {
-		return clienteRepository.save(cliente);
+	public Cliente adicionar(@Valid @RequestBody Cliente cliente) {
+		return clienteService.salvar(cliente);
 	}
 	
 	@PutMapping("/{clienteId}")
-	public ResponseEntity<Cliente> atualizar(@PathVariable Long clienteId, @RequestBody Cliente cliente){
+	public ResponseEntity<Cliente> atualizar(@Valid @PathVariable Long clienteId, @RequestBody Cliente cliente){
 		if(!clienteRepository.existsById(clienteId))
 			return ResponseEntity.notFound().build();
 		
 		cliente.setId(clienteId);
-		cliente = clienteRepository.save(cliente);
+		cliente = clienteService.salvar(cliente);
 		return ResponseEntity.ok(cliente);
 	}
 	
@@ -63,7 +69,7 @@ public class ClienteController {
 		if(!clienteRepository.existsById(clienteId))
 			return ResponseEntity.notFound().build();
 		
-		clienteRepository.deleteById(clienteId);
+		clienteService.excluir(clienteId);
 		return ResponseEntity.noContent().build();
 	}
 	
